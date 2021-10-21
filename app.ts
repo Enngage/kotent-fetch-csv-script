@@ -7,7 +7,7 @@ const languageCodename: string = 'global';
 const productTypeCodename: string = 'product';
 const elementCodename: string = 'basemodeloverview';
 const characterSizeLimit: number = 250;
-const pageSize: number = 200;
+const pageSize: number = 500;
 const csvFilename: string = 'products.csv';
 
 const client = createDeliveryClient({
@@ -21,6 +21,7 @@ const main = async () => {
         .limitParameter(pageSize)
         .type(productTypeCodename)
         .elementsParameter([elementCodename])
+        .depthParameter(0)
         .toAllPromise({
             responseFetched: (response) => {
                 console.log(`Fetched '${yellow(response.data.items.length.toString())}' items from API`)
