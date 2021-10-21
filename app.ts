@@ -41,7 +41,7 @@ const main = async () => {
         }
     }
 
-    console.log(`Filtered '${green(products.length.toString())}' products matching given criteria`);
+    console.log(`Filtered '${green(filteredItems.length.toString())}' products matching given criteria`);
     
     console.log(`Saving filtered products to '${yellow(csvFilename)}'`);
 
