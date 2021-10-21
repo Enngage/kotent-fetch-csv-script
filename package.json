@@ -1,0 +1,23 @@
+{
+  "name": "electro-rent-script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "csv-writer": "1.6.0",
+    "@kentico/kontent-delivery": "11.0.0-5",
+    "typescript": "4.4.4",
+    "ts-node": "10.3.0",
+    "striptags": "3.2.0",
+    "colors": "1.4.0"
+  },
+  "devDependencies": {
+    "@types/striptags": "3.1.1"
+  }
+}
