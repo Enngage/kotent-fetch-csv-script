@@ -5,22 +5,35 @@ import { createObjectCsvWriter } from 'csv-writer';
 
 const languageCodename: string = 'global';
 const productTypeCodename: string = 'product';
-const elementCodename: string = 'basemodeloverview';
+const filterElementCodename: string = 'basemodeloverview';
 const characterSizeLimit: number = 250;
 const pageSize: number = 500;
 const csvFilename: string = 'products.csv';
+const includeElementsWithLength: string[] = [
+    'displaybasemodelshortdesc',
+    'displaybasemodellongdesc',
+    'basemodeloverview'
+];
+
+const allElements: string[] = [
+    filterElementCodename,
+    ...includeElementsWithLength
+];
 
 const client = createDeliveryClient({
     projectId: 'ecb176a6-5a2e-0000-8943-84491e5fc8d1'
 });
 
-const main = async () => {
+function getLengthName(element: string): string {
+    return `${element}_length`
+}
 
+const main = async () => {
     const products = (await client.items()
         .languageParameter(languageCodename)
         .limitParameter(pageSize)
         .type(productTypeCodename)
-        .elementsParameter([elementCodename])
+        .elementsParameter(allElements)
         .depthParameter(0)
         .toAllPromise({
             responseFetched: (response) => {
@@ -34,7 +47,7 @@ const main = async () => {
 
     for(const product of products) {
         // strip html tags from element
-        const valueWithoutTags = striptags(product.elements[elementCodename].value);
+        const valueWithoutTags = striptags(product.elements[filterElementCodename].value);
 
         if (valueWithoutTags.length <= characterSizeLimit) {
             filteredItems.push(product);
@@ -45,20 +58,42 @@ const main = async () => {
     
     console.log(`Saving filtered products to '${yellow(csvFilename)}'`);
 
+    const headers: any[] = [ 
+        {id: 'id', title: 'Id'},
+        {id: 'name', title: 'Name'},
+        {id: 'codename', title: 'Codename'}
+    ];
+
+    for (const element of includeElementsWithLength) {
+        headers.push({
+            id: element,
+            title: element
+        }, {
+            id: getLengthName(element),
+            title: getLengthName(element)
+        })
+    }
+
     const csvWriter = createObjectCsvWriter({
         path: csvFilename,
         alwaysQuote: true,
-        header: [
-            {id: 'id', title: 'Id'},
-            {id: 'name', title: 'Name'}
-        ]
+        header: headers
     });
 
     const records = filteredItems.map(m => {
-        return {
+        const record: any =  {
             id: m.system.id,
-            name: m.system.name
+            name: m.system.name,
+            codename: m.system.codename,
         };
+
+        for (const element of includeElementsWithLength) {
+            const value = striptags(m.elements[element].value);
+            record[element] = value;
+            record[getLengthName(element)] = value.length;
+        }
+
+        return record;
     });
 
     await csvWriter.writeRecords(records);
