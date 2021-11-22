@@ -14,9 +14,13 @@ const includeElementsWithLength: string[] = [
     'displaybasemodellongdesc',
     'basemodeloverview'
 ];
+const includeElements: string[] = [
+    'sfbasemodelid'
+];
 
 const allElements: string[] = [
     filterElementCodename,
+    ...includeElements,
     ...includeElementsWithLength
 ];
 
@@ -61,7 +65,8 @@ const main = async () => {
     const headers: any[] = [ 
         {id: 'id', title: 'Id'},
         {id: 'name', title: 'Name'},
-        {id: 'codename', title: 'Codename'}
+        {id: 'codename', title: 'Codename'},
+        {id: 'lastModified', title: 'LastModified'},
     ];
 
     for (const element of includeElementsWithLength) {
@@ -71,6 +76,13 @@ const main = async () => {
         }, {
             id: getLengthName(element),
             title: getLengthName(element)
+        })
+    }
+
+    for (const element of includeElements) {
+        headers.push({
+            id: element,
+            title: element
         })
     }
 
@@ -85,12 +97,18 @@ const main = async () => {
             id: m.system.id,
             name: m.system.name,
             codename: m.system.codename,
+            lastModified: m.system.lastModified
         };
 
         for (const element of includeElementsWithLength) {
             const value = striptags(m.elements[element].value);
             record[element] = value;
             record[getLengthName(element)] = value.length;
+        }
+
+        for (const element of includeElements) {
+            const value = striptags(m.elements[element].value);
+            record[element] = value;
         }
 
         return record;
